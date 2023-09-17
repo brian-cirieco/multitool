@@ -5,23 +5,34 @@ import { Box, Button, Grid, TextField } from '@mui/material';
 /// Utility Components
 ///
 
-function CalculatorButton({ title, onClick }: CalculatorButtonPropsT): ReactElement<CalculatorButtonPropsT> {
+function ButtonRow({ children }: { children: ReactElement[] }): ReactElement {
 
   return (
-    <Grid item xs>          
-      <Button onClick={onClick} variant="contained">{title}</Button>
+    <Grid container item spacing={1} justifyContent="center">{children}</Grid>
+  );
+}
+
+function ActionButton({ title, onClick }: CalculatorButtonPropsT): ReactElement<CalculatorButtonPropsT> {
+
+  return (
+    <Grid item>          
+      <Button onClick={onClick} variant="contained" sx={(theme) => ({ backgroundColor: theme.palette.success.main })}>{title}</Button>
     </Grid>
   )
 }
 
-function DisplayInputButton({ input, setDisplayNumber }: DisplayInputButtonPropsT): ReactElement<DisplayInputButtonPropsT> {
+function InputButton({ input, setDisplayNumber }: InputButtonPropsT): ReactElement<InputButtonPropsT> {
 
   return (
-    <Grid item xs>
+    <Grid item>
       <Button
         variant="contained"
         onClick={() => setDisplayNumber((displayNumber) => displayNumber + input)}
-        sx={{ backgroundColor: 'grey' }}
+        sx={(theme) => ({
+          backgroundColor: typeof input === 'number'
+            ? theme.palette.primary.main
+            : theme.palette.secondary.main
+        })}
       >
         {input}
       </Button>
@@ -38,7 +49,7 @@ type CalculatorButtonPropsT = {
   onClick: () => void;
 };
 
-type DisplayInputButtonPropsT = {
+type InputButtonPropsT = {
   input: string | number;
   setDisplayNumber: Dispatch<SetStateAction<string>>;
 }
@@ -49,40 +60,47 @@ type DisplayInputButtonPropsT = {
 function Calculator(): ReactElement {
 
   const [displayNumber, setDisplayNumber] = useState<string>('');
-  console.log({displayNumber});
+  const [ansVal, setAnsVal] = useState<string | null>(null);
+
+  const clearAndStoreAns = () => {
+    setAnsVal(displayNumber);
+    setDisplayNumber('');
+  };
 
   return (
-    <Box sx={(theme) => ({
-      padding: 2,
-      border: '2px black',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: theme.spacing(2),
-      width: '75%',
-      margin: 'auto',
-    })}>
-      <TextField variant="filled" value={displayNumber} multiline disabled />
-      <Grid container>
-        <DisplayInputButton input={7} setDisplayNumber={setDisplayNumber} />
-        <DisplayInputButton input={8} setDisplayNumber={setDisplayNumber} />
-        <DisplayInputButton input={9} setDisplayNumber={setDisplayNumber} />
-      </Grid>
-      <Grid container>
-        <DisplayInputButton input={4} setDisplayNumber={setDisplayNumber} />
-        <DisplayInputButton input={5} setDisplayNumber={setDisplayNumber} />
-        <DisplayInputButton input={6} setDisplayNumber={setDisplayNumber} />
-      </Grid>
-      <Grid container>
-        <DisplayInputButton input={1} setDisplayNumber={setDisplayNumber} />
-        <DisplayInputButton input={2} setDisplayNumber={setDisplayNumber} />
-        <DisplayInputButton input={3} setDisplayNumber={setDisplayNumber} />
-      </Grid>
-      <Grid container>
-        <DisplayInputButton input={0} setDisplayNumber={setDisplayNumber} />
-        <DisplayInputButton input="." setDisplayNumber={setDisplayNumber} />
-        <Grid item xs>
-          <Button variant="contained" onClick={() => setDisplayNumber('')}>=</Button>
-        </Grid>
+    <Box>
+      <Grid container spacing={1} justifyContent="center">
+        <TextField variant="filled" value={displayNumber} multiline disabled />
+        <ButtonRow>
+          <InputButton input="(" setDisplayNumber={setDisplayNumber} />
+          <InputButton input=")" setDisplayNumber={setDisplayNumber} />
+          <InputButton input="%" setDisplayNumber={setDisplayNumber} />
+          <ActionButton title="CE" onClick={clearAndStoreAns} />
+        </ButtonRow>
+        <ButtonRow>
+          <InputButton input={7} setDisplayNumber={setDisplayNumber} />
+          <InputButton input={8} setDisplayNumber={setDisplayNumber} />
+          <InputButton input={9} setDisplayNumber={setDisplayNumber} />
+          <InputButton input="/" setDisplayNumber={setDisplayNumber} />
+        </ButtonRow>
+        <ButtonRow>
+          <InputButton input={4} setDisplayNumber={setDisplayNumber} />
+          <InputButton input={5} setDisplayNumber={setDisplayNumber} />
+          <InputButton input={6} setDisplayNumber={setDisplayNumber} />
+          <InputButton input="x" setDisplayNumber={setDisplayNumber} />
+        </ButtonRow>
+        <ButtonRow>
+          <InputButton input={1} setDisplayNumber={setDisplayNumber} />
+          <InputButton input={2} setDisplayNumber={setDisplayNumber} />
+          <InputButton input={3} setDisplayNumber={setDisplayNumber} />
+          <InputButton input="-" setDisplayNumber={setDisplayNumber} />
+        </ButtonRow>
+        <ButtonRow>
+          <InputButton input={0} setDisplayNumber={setDisplayNumber} />
+          <InputButton input="." setDisplayNumber={setDisplayNumber} />
+          <ActionButton title="=" onClick={() => setDisplayNumber('')} />
+          <InputButton input="+" setDisplayNumber={setDisplayNumber} />
+        </ButtonRow>
       </Grid>
     </Box>
   );
