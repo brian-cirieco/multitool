@@ -1,5 +1,6 @@
 import { Dispatch, ReactElement, SetStateAction, useState } from 'react';
 import { Box, Button, Grid, TextField } from '@mui/material';
+import { evaluate } from 'mathjs';
 
 ///
 /// Utility Components
@@ -21,7 +22,7 @@ function ActionButton({ title, onClick }: CalculatorButtonPropsT): ReactElement<
   )
 }
 
-function InputButton({ input, setDisplayNumber }: InputButtonPropsT): ReactElement<InputButtonPropsT> {
+function InputButton({ input, symbol, setDisplayNumber }: InputButtonPropsT): ReactElement<InputButtonPropsT> {
 
   return (
     <Grid item>
@@ -34,7 +35,7 @@ function InputButton({ input, setDisplayNumber }: InputButtonPropsT): ReactEleme
             : theme.palette.secondary.main
         })}
       >
-        {input}
+        { symbol ? symbol : input }
       </Button>
     </Grid>
   );
@@ -51,6 +52,7 @@ type CalculatorButtonPropsT = {
 
 type InputButtonPropsT = {
   input: string | number;
+  symbol?: string | number;
   setDisplayNumber: Dispatch<SetStateAction<string>>;
 }
 
@@ -61,6 +63,12 @@ function Calculator(): ReactElement {
 
   const [displayNumber, setDisplayNumber] = useState<string>('');
   const [ansVal, setAnsVal] = useState<string | null>(null);
+
+  const submitExpression = () => {
+    const result = evaluate(displayNumber);
+    setDisplayNumber(result);
+    setAnsVal(result);
+  }
 
   const clearAndStoreAns = () => {
     setAnsVal(displayNumber);
@@ -75,7 +83,7 @@ function Calculator(): ReactElement {
           <InputButton input="(" setDisplayNumber={setDisplayNumber} />
           <InputButton input=")" setDisplayNumber={setDisplayNumber} />
           <InputButton input="%" setDisplayNumber={setDisplayNumber} />
-          <ActionButton title="CE" onClick={clearAndStoreAns} />
+          <ActionButton title="C" onClick={clearAndStoreAns} />
         </ButtonRow>
         <ButtonRow>
           <InputButton input={7} setDisplayNumber={setDisplayNumber} />
@@ -87,7 +95,7 @@ function Calculator(): ReactElement {
           <InputButton input={4} setDisplayNumber={setDisplayNumber} />
           <InputButton input={5} setDisplayNumber={setDisplayNumber} />
           <InputButton input={6} setDisplayNumber={setDisplayNumber} />
-          <InputButton input="x" setDisplayNumber={setDisplayNumber} />
+          <InputButton input="*" symbol="x" setDisplayNumber={setDisplayNumber} />
         </ButtonRow>
         <ButtonRow>
           <InputButton input={1} setDisplayNumber={setDisplayNumber} />
@@ -98,7 +106,7 @@ function Calculator(): ReactElement {
         <ButtonRow>
           <InputButton input={0} setDisplayNumber={setDisplayNumber} />
           <InputButton input="." setDisplayNumber={setDisplayNumber} />
-          <ActionButton title="=" onClick={() => setDisplayNumber('')} />
+          <ActionButton title="=" onClick={submitExpression} />
           <InputButton input="+" setDisplayNumber={setDisplayNumber} />
         </ButtonRow>
       </Grid>
